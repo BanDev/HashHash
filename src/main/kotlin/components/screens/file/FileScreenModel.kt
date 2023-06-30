@@ -33,13 +33,14 @@ import com.appmattus.crypto.Algorithm
 import com.hoc081098.flowext.interval
 import components.Timer
 import components.screens.ParentComponent
-import helper.FileUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import tv.wunderbox.nfd.FileDialog
+import tv.wunderbox.nfd.FileDialogResult
 import java.io.File
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -101,8 +102,11 @@ object FileScreenModel : ScreenModel {
         }
     }
 
-    fun selectFile() {
-        FileUtils.openFileDialogAndGetResult().also(::setComponentFile)
+    fun selectFile(fileDialog: FileDialog) {
+        val result = fileDialog.pickFile()
+        if (result is FileDialogResult.Success) {
+            setComponentFile(result.value)
+        }
     }
 
     fun setComponentFile(file: File?) {

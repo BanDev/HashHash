@@ -29,6 +29,9 @@ import com.appmattus.crypto.Algorithm
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import components.screens.ParentComponent
 import helper.FileUtils
+import tv.wunderbox.nfd.FileDialog
+import tv.wunderbox.nfd.FileDialogResult
+import java.awt.Component
 
 object TextScreenModel : ScreenModel {
     var givenText by mutableStateOf("")
@@ -65,17 +68,17 @@ object TextScreenModel : ScreenModel {
 
     fun onAlgorithmClick(algorithm: Algorithm) = hashGivenText(algorithm)
 
-    suspend fun hashTextLineByLine(text: String) {
-        hashTextLineByLine(text.splitToSequence(selectedDelimiter.delimiter))
+    suspend fun hashTextLineByLine(text: String, fileDialog: FileDialog) {
+        hashTextLineByLine(text.splitToSequence(selectedDelimiter.delimiter), fileDialog)
     }
 
-    private suspend fun hashTextLineByLine(lines: Sequence<String>) {
-        FileUtils.openSaveFileDialog(
-            fileName = "Output",
-            filter = "csv",
-            singleFilterDescription = "Comma separated values (*.csv)"
-        )?.let { path ->
-            csvWriter().openAsync(path) {
+    private suspend fun hashTextLineByLine(lines: Sequence<String>, fileDialog: FileDialog) {
+        val result = fileDialog.save(
+            filters = listOf(FileDialog.Filter(title = "Comma separated values (*.csv)", extensions = listOf("csv"))),
+            defaultName = "Output"
+        )
+        if (result is FileDialogResult.Success) {
+            csvWriter().openAsync(result.value.path) {
                 if (includeSourceText) {
                     writeRow("Text", "${ParentComponent.algorithm.algorithmName} hash")
                 } else {
@@ -99,14 +102,18 @@ object TextScreenModel : ScreenModel {
         }
     }
 
-    suspend fun hashFileLineByLine() {
-        FileUtils.openFileDialogAndGetResult()?.useLines { lines ->
-            if (selectedDelimiter == Delimiter.NewLine) {
-                hashTextLineByLine(lines)
-            } else {
-                hashTextLineByLine(
-                    lines.joinToString(Delimiter.NewLine.delimiter).splitToSequence(selectedDelimiter.delimiter)
-                )
+    suspend fun hashFileLineByLine(fileDialog: FileDialog) {
+        val result = fileDialog.pickFile()
+        if (result is FileDialogResult.Success) {
+            result.value.useLines { lines ->
+                if (selectedDelimiter == Delimiter.NewLine) {
+                    hashTextLineByLine(lines, fileDialog)
+                } else {
+                    hashTextLineByLine(
+                        lines.joinToString(Delimiter.NewLine.delimiter).splitToSequence(selectedDelimiter.delimiter),
+                        fileDialog
+                    )
+                }
             }
         }
     }

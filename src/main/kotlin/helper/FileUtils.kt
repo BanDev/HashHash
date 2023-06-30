@@ -20,24 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package helper
 
-import io.klogging.Klogging
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import org.lwjgl.PointerBuffer
-import org.lwjgl.system.MemoryStack.stackPush
-import org.lwjgl.util.nfd.NFDFilterItem
-import org.lwjgl.util.nfd.NativeFileDialog.NFD_CANCEL
-import org.lwjgl.util.nfd.NativeFileDialog.NFD_FreePath
-import org.lwjgl.util.nfd.NativeFileDialog.NFD_GetError
-import org.lwjgl.util.nfd.NativeFileDialog.NFD_OKAY
-import org.lwjgl.util.nfd.NativeFileDialog.NFD_OpenDialog
-import org.lwjgl.util.nfd.NativeFileDialog.NFD_SaveDialog
-import java.io.File
-import java.nio.ByteBuffer
-
-object FileUtils : Klogging {
-
+object FileUtils {
     fun getFormattedBytes(bytes: Long): String {
         // Check for a simple case when bytes are less than 1024
         if (bytes < 1024) return "$bytes B"
@@ -54,55 +37,5 @@ object FileUtils : Klogging {
 
         // Format the result string using the value and unit prefix
         return "%.1f %sB".format(value, unitPrefixes[unitIndex])
-    }
-
-    private fun openFileDialog(): String? {
-        stackPush().use { stack ->
-            val pointerBuffer: PointerBuffer = stack.mallocPointer(1)
-            return when (NFD_OpenDialog(pointerBuffer, null, null as ByteBuffer?)) {
-                NFD_OKAY -> pointerBuffer.getStringUTF8(0).also { NFD_FreePath(pointerBuffer.get(0)) }
-                NFD_CANCEL -> {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        logger.info("User pressed cancel in open file dialog")
-                    }
-                    null
-                }
-                else -> {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        logger.error("${NFD_GetError()}")
-                    }
-                    null
-                }
-            }
-        }
-    }
-
-    fun openFileDialogAndGetResult(): File? {
-        openFileDialog().also {
-            return if (it != null) File(it) else null
-        }
-    }
-
-    fun openSaveFileDialog(fileName: String, filter: String, singleFilterDescription: String): String? {
-        stackPush().use { stack ->
-            val filters = NFDFilterItem.malloc(1)
-            filters.first().name(stack.UTF8(singleFilterDescription)).spec(stack.UTF8(filter))
-            val pointerBuffer = stack.mallocPointer(1)
-            return when (NFD_SaveDialog(pointerBuffer, filters, null, fileName)) {
-                NFD_OKAY -> pointerBuffer.getStringUTF8(0).also { NFD_FreePath(pointerBuffer.get(0)) }
-                NFD_CANCEL -> {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        logger.info("User pressed cancel in save file dialog")
-                    }
-                    null
-                }
-                else -> {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        logger.error("Save dialog error: ${NFD_GetError()}")
-                    }
-                    null
-                }
-            }
-        }
     }
 }

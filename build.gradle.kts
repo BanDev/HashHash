@@ -62,11 +62,8 @@ dependencies {
     // Ktor - https://github.com/ktorio/ktor
     implementation(libs.ktor.client.java)
 
-    // LWJGL - https://github.com/LWJGL/lwjgl3
-    implementation(libs.lwjgl.core)
-    implementation(libs.lwjgl.nativefiledialogs)
-    runtimeOnly(variantOf(libs.lwjgl.core) { classifier(lwjglNatives) })
-    runtimeOnly(variantOf(libs.lwjgl.nativefiledialogs) { classifier(lwjglNatives) })
+    // Native File Dialog - https://github.com/WonderzGmbH/nativefiledialog-java
+    implementation(libs.nativefiledialog)
 
     // SLF4J No-operation implementation - https://www.slf4j.org
     implementation(libs.slf4j.nop)
@@ -129,16 +126,4 @@ detekt {
 buildConfig {
     buildConfigField("String", "appName", "\"${project.name}\"")
     buildConfigField("String", "appVersion", provider { "\"${project.version}\"" })
-}
-
-val lwjglNatives = Pair(
-    System.getProperty("os.name")!!,
-    System.getProperty("os.arch")!!
-).let { (name, _) ->
-    when {
-        arrayOf("Linux", "FreeBSD", "SunOS", "Unit").any(name::startsWith) -> "natives-linux"
-        arrayOf("Mac OS X", "Darwin").any(name::startsWith) -> "natives-macos"
-        name.startsWith("Windows") -> "natives-windows"
-        else -> throw Error("Unrecognized or unsupported platform. Please set \"lwjglNatives\" manually")
-    }
 }

@@ -35,20 +35,25 @@ import org.pushingpixels.aurora.component.projection.TabsProjection
 import org.pushingpixels.aurora.theming.TabContentSeparatorKind
 
 @Composable
-fun Tabs(tabNavigator: TabNavigator = LocalTabNavigator.current) {
+fun Tabs(
+    tabNavigator: TabNavigator = LocalTabNavigator.current,
+    fileTab: FileTab,
+    textTab: TextTab,
+    compareFilesTab: CompareFilesTab
+) {
     TabsProjection(
         contentModel = TabsContentModel(
             tabs = listOf(
-                TabContentModel(text = FileTab.options.title),
-                TabContentModel(text = TextTab.options.title),
-                TabContentModel(text = CompareFilesTab.options.title)
+                TabContentModel(text = fileTab.options.title),
+                TabContentModel(text = textTab.options.title),
+                TabContentModel(text = compareFilesTab.options.title)
             ),
             selectedTabIndex = tabNavigator.current.options.index.toInt(),
             onTriggerTabSelected = {
                 when (it) {
-                    0 -> tabNavigator.current = FileTab
-                    1 -> tabNavigator.current = TextTab
-                    2 -> tabNavigator.current = CompareFilesTab
+                    0 -> tabNavigator.current = fileTab
+                    1 -> tabNavigator.current = textTab
+                    2 -> tabNavigator.current = compareFilesTab
                 }
             }
         ),

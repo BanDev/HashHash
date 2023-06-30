@@ -55,8 +55,9 @@ import org.pushingpixels.aurora.component.projection.CommandButtonProjection
 import org.pushingpixels.aurora.component.projection.LabelProjection
 import org.pushingpixels.aurora.theming.AuroraSkin
 import org.pushingpixels.aurora.theming.IconFilterStrategy
+import tv.wunderbox.nfd.FileDialog
 
-object CompareFilesTab : Tab {
+class CompareFilesTab(private val fileDialog: FileDialog) : Tab {
     override val options: TabOptions
         @Composable
         get() = remember {
@@ -93,7 +94,8 @@ object CompareFilesTab : Tab {
                                 )
                             }
                         },
-                    fileComparison = CompareFilesModel.FileComparison.One
+                    fileComparison = CompareFilesModel.FileComparison.One,
+                    fileDialog = fileDialog
                 )
                 CompareFilesModel.FileComparisonColumn(
                     modifier = Modifier
@@ -107,7 +109,8 @@ object CompareFilesTab : Tab {
                                 )
                             }
                         },
-                    fileComparison = CompareFilesModel.FileComparison.Two
+                    fileComparison = CompareFilesModel.FileComparison.Two,
+                    fileDialog = fileDialog
                 )
             }
             CommandButtonProjection(

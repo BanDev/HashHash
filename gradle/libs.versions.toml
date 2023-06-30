@@ -14,7 +14,7 @@ kotlin-csv = "1.9.1"
 kotlinx-datetime = "0.4.0"
 ktgithub = "b02824c1ba"
 ktor = "2.3.1"
-lwjgl = "3.3.2"
+nativefiledialog = "1.0.3"
 slf4j = "2.0.7"
 voyager = "1.0.0-rc06"
 windowstyler = "0.3.2"
@@ -47,8 +47,7 @@ ktgithub = { module = "com.github.russellbanks.KtGitHub:KtGitHub", version.ref =
 
 ktor-client-java = { module = "io.ktor:ktor-client-java", version.ref = "ktor" }
 
-lwjgl-core = { module = "org.lwjgl:lwjgl", version.ref = "lwjgl" }
-lwjgl-nativefiledialogs = { module = "org.lwjgl:lwjgl-nfd", version.ref = "lwjgl" }
+nativefiledialog = { module = "tv.wunderbox:nativefiledialog", version.ref = "nativefiledialog" }
 
 slf4j-nop = { module = "org.slf4j:slf4j-nop", version.ref = "slf4j" }
 

@@ -46,7 +46,9 @@ import components.dialogs.TranslucentDialogOverlay
 import components.dialogs.UpdateAvailableDialog
 import components.dialogs.about.AboutDialog
 import components.dialogs.settings.SettingsDialog
+import components.screens.compare.CompareFilesTab
 import components.screens.file.FileTab
+import components.screens.text.TextTab
 import helper.Icons
 import helper.Window
 import java.awt.Dimension
@@ -55,6 +57,7 @@ import org.pushingpixels.aurora.window.AuroraWindow
 import org.pushingpixels.aurora.window.auroraApplication
 import preferences.theme.ThemeHandler
 import preferences.windowcorner.WindowCornerHandler
+import tv.wunderbox.nfd.FileDialog
 
 fun hashHashApplication() = auroraApplication {
     val windowState = rememberWindowState(
@@ -78,12 +81,16 @@ fun hashHashApplication() = auroraApplication {
                     backdropType = WindowBackdrop.Mica,
                     frameStyle = WindowFrameStyle(cornerPreference = WindowCornerHandler.windowCorner)
                 )
-                TabNavigator(FileTab) { tabNavigator ->
+                val fileDialog = FileDialog.default(this.window)
+                val fileTab = FileTab(fileDialog)
+                val textTab = TextTab(fileDialog)
+                val compareFilesTab = CompareFilesTab(fileDialog)
+                TabNavigator(fileTab) { tabNavigator ->
                     this.window.minimumSize = Dimension(Window.minWindowWidth, Window.minWindowHeight)
                     Box {
                         Column {
                             Toolbar()
-                            Tabs(tabNavigator)
+                            Tabs(tabNavigator, fileTab, textTab, compareFilesTab)
                             Row(Modifier.fillMaxSize().weight(1f)) {
                                 ControlPane()
                                 VerticalSeparatorProjection().project(Modifier.fillMaxHeight())

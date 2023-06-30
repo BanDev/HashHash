@@ -52,8 +52,9 @@ import org.pushingpixels.aurora.component.model.LabelPresentationModel
 import org.pushingpixels.aurora.component.projection.HorizontalSeparatorProjection
 import org.pushingpixels.aurora.component.projection.LabelProjection
 import org.pushingpixels.aurora.theming.AuroraSkin
+import tv.wunderbox.nfd.FileDialog
 
-object FileTab : Tab {
+class FileTab(private val fileDialog: FileDialog) : Tab {
     override val options: TabOptions
         @Composable
         get() = remember {
@@ -82,9 +83,9 @@ object FileTab : Tab {
                 },
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            SelectFileRow(FileScreenModel::selectFile)
+            SelectFileRow { FileScreenModel.selectFile(fileDialog) }
             FileInfoRow(FileScreenModel.file)
-            HashButton(FileScreenModel.file, FileScreenModel.fileHashJob) { FileScreenModel.onCalculateClicked() }
+            HashButton(FileScreenModel.file, FileScreenModel.fileHashJob, FileScreenModel::onCalculateClicked)
             HorizontalSeparatorProjection().project(Modifier.fillMaxWidth())
             OutputTextFieldRow(
                 value = FileScreenModel.resultMap.getOrDefault(ParentComponent.algorithm, ""),

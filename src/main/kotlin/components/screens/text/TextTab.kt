@@ -61,8 +61,9 @@ import org.pushingpixels.aurora.component.projection.CommandButtonProjection
 import org.pushingpixels.aurora.component.projection.LabelProjection
 import org.pushingpixels.aurora.component.projection.TextFieldStringProjection
 import org.pushingpixels.aurora.theming.AuroraSkin
+import tv.wunderbox.nfd.FileDialog
 
-object TextTab : Tab {
+class TextTab(private val fileDialog: FileDialog) : Tab {
     override val options: TabOptions
         @Composable
         get() = remember {
@@ -112,7 +113,9 @@ object TextTab : Tab {
                                     extraText = "test",
                                     action = {
                                         if (TextScreenModel.givenText.isNotEmpty()) {
-                                            scope.launch { TextScreenModel.hashTextLineByLine(TextScreenModel.givenText) }
+                                            scope.launch {
+                                                TextScreenModel.hashTextLineByLine(TextScreenModel.givenText, fileDialog)
+                                            }
                                         } else {
                                             TextScreenModel.isTextLineByLineErrorVisible = true
                                         }
@@ -128,7 +131,7 @@ object TextTab : Tab {
                         CommandButtonProjection(
                             contentModel = Command(
                                 text = "Hash file line-by-line",
-                                action = { scope.launch { TextScreenModel.hashFileLineByLine() } }
+                                action = { scope.launch { TextScreenModel.hashFileLineByLine(fileDialog) } }
                             )
                         ).project()
                         Row {

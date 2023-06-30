@@ -69,6 +69,9 @@ import org.pushingpixels.aurora.component.projection.CommandButtonProjection
 import org.pushingpixels.aurora.component.projection.HorizontalSeparatorProjection
 import org.pushingpixels.aurora.component.projection.LabelProjection
 import org.pushingpixels.aurora.theming.IconFilterStrategy
+import tv.wunderbox.nfd.FileDialog
+import tv.wunderbox.nfd.FileDialogResult
+import java.awt.Component
 
 object CompareFilesModel : ScreenModel, Klogging {
     val algorithm = ParentComponent.algorithm
@@ -167,16 +170,15 @@ object CompareFilesModel : ScreenModel, Klogging {
 
     fun areJobsActive() = (comparisonJobList?.count(Deferred<Unit>::isActive) ?: 0) <= 0
 
-    private fun selectFile(fileComparison: FileComparison) {
-        FileUtils.openFileDialogAndGetResult().also { file ->
-            if (file != null) {
-                if (fileComparison == FileComparison.One) {
-                    fileOneResultMap.clear()
-                    fileOne = file
-                } else if (fileComparison == FileComparison.Two) {
-                    fileTwoResultMap.clear()
-                    fileTwo = file
-                }
+    private fun selectFile(fileComparison: FileComparison, fileDialog: FileDialog) {
+        val result = fileDialog.pickFile()
+        if (result is FileDialogResult.Success) {
+            if (fileComparison == FileComparison.One) {
+                fileOneResultMap.clear()
+                fileOne = result.value
+            } else if (fileComparison == FileComparison.Two) {
+                fileTwoResultMap.clear()
+                fileTwo = result.value
             }
         }
     }
@@ -215,14 +217,15 @@ object CompareFilesModel : ScreenModel, Klogging {
     }
 
     @Composable
-    fun FileComparisonColumn(modifier: Modifier = Modifier, fileComparison: FileComparison) {
+    fun FileComparisonColumn(modifier: Modifier = Modifier, fileComparison: FileComparison, fileDialog: FileDialog) {
         if (fileComparison == FileComparison.One) {
             FileComparisonColumn(
                 modifier = modifier,
                 file = fileOne,
                 fileResultMap = fileOneResultMap,
                 isHashUppercase = fileOneHashUppercase,
-                fileComparison = fileComparison
+                fileComparison = fileComparison,
+                fileDialog = fileDialog
             )
         } else if (fileComparison == FileComparison.Two) {
             FileComparisonColumn(
@@ -230,7 +233,8 @@ object CompareFilesModel : ScreenModel, Klogging {
                 file = fileTwo,
                 fileResultMap = fileTwoResultMap,
                 isHashUppercase = fileTwoHashUppercase,
-                fileComparison = fileComparison
+                fileComparison = fileComparison,
+                fileDialog = fileDialog
             )
         }
     }
@@ -241,14 +245,15 @@ object CompareFilesModel : ScreenModel, Klogging {
         file: File?,
         fileResultMap: SnapshotStateMap<Algorithm, String>,
         isHashUppercase: Boolean,
-        fileComparison: FileComparison
+        fileComparison: FileComparison,
+        fileDialog: FileDialog
     ) {
         Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(16.dp)) {
             CommandButtonProjection(
                 contentModel = Command(
                     text = "Select file",
                     icon = Icons.Utility.folderOpen(),
-                    action = { selectFile(fileComparison) }
+                    action = { selectFile(fileComparison, fileDialog) }
                 ),
                 presentationModel = CommandButtonPresentationModel(
                     iconEnabledFilterStrategy = IconFilterStrategy.ThemedFollowText,
